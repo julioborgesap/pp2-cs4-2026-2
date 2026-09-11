@@ -48,3 +48,4 @@ export function remove(id: number) {
    where: { id },
  });
 }
+7
