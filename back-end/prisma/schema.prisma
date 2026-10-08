@@ -38,7 +38,7 @@ model Customer {
 model Car {
  id               Int      @id @default(autoincrement())  // Chave primária
  brand            String   // Marca
- model            String   // Modelo
+ model            String   // Modelo  
  color            String   // Cor
  year_manufacture Int      // Ano de fabricação
  imported         Boolean  // É importado?
