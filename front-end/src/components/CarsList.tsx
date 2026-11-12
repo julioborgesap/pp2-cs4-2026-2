@@ -1,20 +1,95 @@
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router'
+import type { Car } from '../types/Car'
 
-import { Link } from "react-router";
+const API_URL = `${import.meta.env.VITE_API_BASE}/cars`
 
 export function CarsList() {
-  return (
-    <>
-      <h2 className="h2 mb-3">Listagem de Veículos</h2>
+ const [cars, setCars] = useState<Car[]>([])
 
-      <div className="text-end mb-3">
-        <Link to={`/cars/new`} className="btn btn-outline-primary">
-          Novo veículo
-        </Link>
-      </div>
+ useEffect(() => {
+   let active = true
 
-      <p className="text-secondary">
-        A listagem de veículos aparecerá aqui.
-      </p>
-    </>
-  );
+   async function fetchCars() {
+     try {
+       const response = await fetch(API_URL)
+
+       if (!response.ok) {
+         throw new Error(`Erro HTTP ${response.status}`)
+       }
+
+       const data: Car[] = await response.json()
+       if (active) setCars(data)
+     }
+     catch (error) {
+       if (active) {
+         const message = error instanceof Error ? error.message : String(error)
+         window.alert(`Não foi possível carregar os veículos. ${message}`)
+       }
+     }
+   }
+
+   void fetchCars()
+   return () => {
+     active = false
+   }
+ }, [])
+
+ return (
+   <>
+     <h2 className="h2 mb-3">Listagem de Veículos</h2>
+
+     <p className="text-secondary">
+       Total de veículos: {cars.length}
+     </p>
+
+     <div className="text-end mb-3">
+       <Link
+         to="/cars/new"
+         className="btn btn-outline-primary"
+       >
+         Novo veículo
+       </Link>
+     </div>
+
+     <div className="table-responsive">
+       <table className="table table-striped table-hover align-middle">
+         <thead className="table-dark">
+           <tr>
+             <th scope="col">Código</th>
+             <th scope="col">Marca</th>
+             <th scope="col">Modelo</th>
+             <th scope="col">Cor</th>
+             <th scope="col">Ano</th>
+             <th scope="col">Importado</th>
+             <th scope="col">Placas</th>
+             <th scope="col">Proprietário</th>
+           </tr>
+         </thead>
+         <tbody>
+           {cars.map(car => (
+             <tr key={car.id}>
+               <td>{car.id}</td>
+               <td>{car.brand}</td>
+               <td>{car.model}</td>
+               <td>{car.color}</td>
+               <td>{car.year_manufacture}</td>
+               <td>{car.imported ? 'Sim' : 'Não'}</td>
+               <td>{car.plates}</td>
+               <td>{car.customer?.name ?? 'Não vendido'}</td>
+             </tr>
+           ))}
+
+           {cars.length === 0 && (
+             <tr>
+               <td colSpan={8} className="text-center text-secondary">
+                 Nenhum veículo cadastrado.
+               </td>
+             </tr>
+           )}
+         </tbody>
+       </table>
+     </div>
+   </>
+ )
 }
